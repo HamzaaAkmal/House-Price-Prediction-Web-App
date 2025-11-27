@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        [data-bs-theme="dark"] {
+            --gradient-start: #1e293b;
+            --gradient-end: #0f172a;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card-main {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        [data-bs-theme="dark"] .card-main {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border: none;
+        }
+
+        .card-header-custom h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header-custom p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .card-body-custom {
+            padding: 2.5rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+            background-color: white;
+        }
+
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background-color: rgba(51, 65, 85, 0.8);
+            border-color: #475569;
+            color: #f1f5f9;
+        }
+
+        [data-bs-theme="dark"] .form-control:focus,
+        [data-bs-theme="dark"] .form-select:focus {
+            background-color: #334155;
+            border-color: var(--primary-color);
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+            background: linear-gradient(135deg, var(--primary-hover), #1e40af);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1050;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            padding: 0.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        [data-bs-theme="dark"] .theme-toggle {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, var(--success-color), #047857);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(5, 150, 105, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .result-card .price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title {
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        [data-bs-theme="dark"] .section-title {
+            color: #cbd5e1;
+            border-bottom-color: #475569;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+
+            .card-header-custom {
+                padding: 1.5rem;
+            }
+
+            .card-header-custom h1 {
+                font-size: 2rem;
+            }
+
+            .card-body-custom {
+                padding: 1.5rem;
+            }
+
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+            }
+
+            .result-card .price {
+                font-size: 2.5rem;
+            }
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="btn theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <i class="bi bi-moon-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="main-container">
+        <div class="card card-main">
+            <div class="card-header-custom">
+                <h1><i class="bi bi-house-fill me-3"></i>Real Estate Price Prediction</h1>
+                <p>Get accurate property valuations using advanced machine learning</p>
+            </div>
+            
+            <div class="card-body-custom">
+                <form method="POST" action="/predict" id="predictionForm">
+                    <div class="row">
+                        <!-- Property Details Section -->
+                        <div class="col-lg-6">
+                            <h4 class="section-title"><i class="bi bi-info-circle me-2"></i>Property Details</h4>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="bedrooms" name="bedrooms" placeholder="Bedrooms" required>
+                                <label for="bedrooms"><i class="bi bi-door-open me-2"></i>Bedrooms</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="bathrooms" name="bathrooms" placeholder="Bathrooms" required>
+                                <label for="bathrooms"><i class="bi bi-droplet me-2"></i>Bathrooms</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <select class="form-select" id="floors" name="floors">
+                                    {% for floor in sample_data['floors'] %}
+                                    <option value="{{ floor }}">{{ floor }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="floors"><i class="bi bi-layers me-2"></i>Floors</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <select class="form-select" id="waterfront" name="waterfront">
+                                    {% for item in sample_data['waterfront'] %}
+                                    <option value="{{ item }}">{{ 'Yes' if item == 1 else 'No' }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="waterfront"><i class="bi bi-water me-2"></i>Waterfront</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <select class="form-select" id="view" name="view">
+                                    {% for item in sample_data['view'] %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="view"><i class="bi bi-eye me-2"></i>View Rating</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <select class="form-select" id="condition" name="condition">
+                                    {% for item in sample_data['condition'] %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="condition"><i class="bi bi-star me-2"></i>Condition</label>
+                            </div>
+                        </div>
+
+                        <!-- Size & Location Section -->
+                        <div class="col-lg-6">
+                            <h4 class="section-title"><i class="bi bi-rulers me-2"></i>Size & Location</h4>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="sqft_living" name="sqft_living" placeholder="Living Area (sq ft)" required>
+                                <label for="sqft_living"><i class="bi bi-house me-2"></i>Living Area (sq ft)</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="sqft_lot" name="sqft_lot" placeholder="Lot Size (sq ft)" required>
+                                <label for="sqft_lot"><i class="bi bi-bounding-box me-2"></i>Lot Size (sq ft)</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="sqft_above" name="sqft_above" placeholder="Above Ground (sq ft)" required>
+                                <label for="sqft_above"><i class="bi bi-arrow-up me-2"></i>Above Ground (sq ft)</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="sqft_basement" name="sqft_basement" placeholder="Basement (sq ft)" required>
+                                <label for="sqft_basement"><i class="bi bi-arrow-down me-2"></i>Basement (sq ft)</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="yr_built" name="yr_built" placeholder="Year Built" required>
+                                <label for="yr_built"><i class="bi bi-calendar me-2"></i>Year Built</label>
+                            </div>
+                            
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="yr_renovated" name="yr_renovated" placeholder="Year Renovated" required>
+                                <label for="yr_renovated"><i class="bi bi-tools me-2"></i>Year Renovated</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Details -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h4 class="section-title"><i class="bi bi-geo-alt me-2"></i>Location Details</h4>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="street" name="street">
+                                    {% for item in sample_data['street'] %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="street"><i class="bi bi-signpost me-2"></i>Street</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="city" name="city">
+                                    {% for item in sample_data['city'] %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="city"><i class="bi bi-building me-2"></i>City</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <select class="form-select" id="statezip" name="statezip">
+                                    {% for item in sample_data['statezip'] %}
+                                    <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="statezip"><i class="bi bi-mailbox me-2"></i>State/Zip</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-predict">
+                        <span class="loading spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <i class="bi bi-calculator me-2"></i>
+                        <span id="btn-text">Predict Property Value</span>
+                    </button>
+                </form>
+
+                {% if predicted_price %}
+                <div class="result-card">
+                    <h3><i class="bi bi-currency-dollar me-2"></i>Estimated Property Value</h3>
+                    <div class="price">${{ "{:,.0f}".format(predicted_price) }}</div>
+                    <p class="mb-0">Based on current market analysis and property features</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Theme management
+        const getStoredTheme = () => localStorage.getItem('theme')
+        const setStoredTheme = theme => localStorage.setItem('theme', theme)
+        
+        const getPreferredTheme = () => {
+            const storedTheme = getStoredTheme()
+            if (storedTheme) {
+                return storedTheme
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        
+        const setTheme = theme => {
+            if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark')
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', theme)
+            }
+            updateThemeIcon(theme)
+        }
+        
+        const updateThemeIcon = (theme) => {
+            const icon = document.getElementById('theme-icon')
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                icon.className = 'bi bi-sun-fill'
+            } else {
+                icon.className = 'bi bi-moon-fill'
+            }
+        }
+        
+        const toggleTheme = () => {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme')
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+            setStoredTheme(newTheme)
+            setTheme(newTheme)
+        }
+        
+        // Initialize theme
+        setTheme(getPreferredTheme())
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const storedTheme = getStoredTheme()
+            if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                setTheme(getPreferredTheme())
+            }
+        })
+        
+        // Form submission with loading state
+        document.getElementById('predictionForm').addEventListener('submit', function() {
+            const loading = document.querySelector('.loading')
+            const btnText = document.getElementById('btn-text')
+            const submitBtn = document.querySelector('.btn-predict')
+            
+            loading.classList.add('show')
+            btnText.textContent = 'Calculating...'
+            submitBtn.disabled = true
+        })
+        
+        // Add smooth scrolling to result
+        {% if predicted_price %}
+        setTimeout(() => {
+            document.querySelector('.result-card').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            })
+        }, 100)
+        {% endif %}
+    </script>
+</body>
+</html>

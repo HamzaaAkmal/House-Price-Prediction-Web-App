@@ -1,0 +1,19 @@
+Load the pre-trained model using the code:
+```
+import pickle
+model_svc = pickle.load(open('model_svc.pkl', 'rb'))  # Model Loading
+```
+
+dataset is avaiable in the 'processed_data.csv' file, and the content is:
+```
+price,bedrooms,bathrooms,sqft_living,sqft_lot,floors,waterfront,view,condition,sqft_above,sqft_basement,yr_built,yr_renovated,street,city,statezip
+313000,3,1,1340,7912,1,0,0,3,1340,0,1955,2005,1502,36,62
+2384000,5,2,3650,9050,2,0,4,5,3370,280,1921,0,3858,35,58
+342000,3,2,1930,11947,1,0,0,4,1930,0,1966,0,2265,18,26
+420000,3,2,2000,8030,1,0,0,4,1000,1000,1963,0,4219,3,7
+```
+resultant column is price
+and dependent columns are all other columns.
+create dropdowns for all the categorical columns and textboxes for all the sqft columns.
+
+Based on this information, create a web app using Flask, and make its frontend to be aesthetically pleasing and responsive.
